@@ -113,8 +113,8 @@ class PRReviewAnalytics
           nil
         end
       end.compact
-    rescue Octokit::Error => e
-      @logger.warning "Error fetching PRs: #{e.message}"
+    rescue => e
+      @logger.error "Error fetching PRs: #{e.message}"
       []
     end
   end

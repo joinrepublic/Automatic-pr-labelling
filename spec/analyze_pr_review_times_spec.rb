@@ -134,7 +134,7 @@ RSpec.describe PRReviewAnalytics do
         allow(client).to receive(:search_issues).and_raise(StandardError.new("Rate limit"))
       end
 
-      xit 'logs error and continues gracefully' do
+      it 'logs error and continues gracefully' do
         expect(logger).to receive(:error).with(/Error fetching PRs/)
         expect { analytics.run }.not_to raise_error
       end
