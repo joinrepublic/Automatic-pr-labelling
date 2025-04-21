@@ -3,6 +3,7 @@ require 'octokit'
 require 'json'
 require 'yaml'
 require 'logger'
+require 'dotenv/load'
 
 # Set up logging
 # logger.rb (or just inline this method)

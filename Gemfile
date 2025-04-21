@@ -5,12 +5,10 @@ gem 'descriptive_statistics'  # Statistical calculations
 gem 'terminal-table'         # Pretty tables in terminal
 gem 'logger'                 # Logging
 gem 'faraday-retry'
+gem 'dotenv'
 
 group :development, :test do
   gem 'rspec', '~> 3.12'     # Testing
-  gem 'webmock', '~> 3.18'   # HTTP request mocking
-  gem 'vcr', '~> 6.1'        # Record HTTP interactions
   gem 'rubocop', '~> 1.50'   # Code style checker
-  gem 'pry'                  # Debugging
   gem 'timecop'
 end

@@ -67,7 +67,7 @@ jobs:
 To run the estimator script without using docker you shoud execute the following:
 
 ```shell
-$ GITHUB_TOKEN=your_token REPOSITORY=owner/repo PR_NUMBER=xyz bin/estimator
+$ bin/estimator
 ```
 
 #### Example output
@@ -105,7 +105,7 @@ docker run --rm \
 To run the analytics script without using docker  you shoud execute the following:
 
 ```shell
-$ GITHUB_TOKEN=your_token REPOSITORY=owner/repo bin/analytics.sh
+$ bin/analytics.sh
 ```
 
 #### Example output

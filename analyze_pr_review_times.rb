@@ -5,6 +5,7 @@ require 'octokit'
 require 'logger'
 require 'time'
 require 'date'
+require 'dotenv/load'
 
 # Simple statistics for arrays
 class Array
