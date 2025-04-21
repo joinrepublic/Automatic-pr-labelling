@@ -20,7 +20,7 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle install --jobs 4 --retry 3
 
 # Install additional gems for data analysis
-RUN gem install activesupport descriptive_statistics terminal-table
+RUN gem install descriptive_statistics terminal-table
 
 # Copy application code
 COPY . .
@@ -29,4 +29,4 @@ COPY . .
 RUN chmod +x ./analyze_pr_review_times.rb
 
 # Set the default command
-ENTRYPOINT ["bin/analytics"]
+ENTRYPOINT ["bin/analytics.sh"]
