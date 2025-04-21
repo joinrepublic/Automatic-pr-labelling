@@ -27,6 +27,7 @@ The Automatic PR Labelling helps measure the impact of this labeling system by c
 2. Build the Docker images:
 ```shell
     docker build -t pr-analytics -f docker/analytics/Dockerfile .
+    docker build -t pr-estimator -f docker/estimator/Dockerfile .
 ```
 3. Set up your environment variables:
 ```shell
@@ -35,6 +36,37 @@ The Automatic PR Labelling helps measure the impact of this labeling system by c
 ```
 
 ## Usage
+### PR Review Estimator
+#### Running from another GitHub action
+```yaml
+jobs:
+  estimate_review_time:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Estimate PR review time
+        uses: your-org/pr-review-time-estimator@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repository: ${{ github.repository }}
+          pr_number: ${{ github.event.pull_request.number }}
+```
+#### Running locally without Docker
+```shell
+$ GITHUB_TOKEN=your_token REPOSITORY=owner/repo PR_NUMBER=xyz bin/estimator
+```
+ An example output would be
+```shell
+GITHUB_TOKEN=$GITHUB_TOKEN REPOSITORY=$REPOSITORY PR_NUMBER=16810 bin/estimator.sh
+Bundle complete! 11 Gemfile dependencies, 45 gems now installed.
+Bundled gems are installed into `./vendor`
+I, [2025-04-21T10:15:33.433015 #77307]  INFO -- : Initializing PR Review Time Estimator for owner/repo#xyz
+I, [2025-04-21T10:15:35.662019 #77307]  INFO -- : Files changed: 2
+I, [2025-04-21T10:15:35.662106 #77307]  INFO -- : Lines added: 5
+I, [2025-04-21T10:15:35.662121 #77307]  INFO -- : Lines deleted: 5
+I, [2025-04-21T10:15:35.662140 #77307]  INFO -- : Estimated review time: 3 minutes
+I, [2025-04-21T10:15:35.662152 #77307]  INFO -- : Applied label: review-time: 3 minutes
+```
+
 ### PR Review Analytics
 #### Running locally with Docker
 ```shell
@@ -47,8 +79,9 @@ docker run --rm \
 
 #### Running locally without Docker
 ```shell
-$ GITHUB_TOKEN=your_token REPOSITORY=owner/repo bundle exec ruby analyze_pr_review_times.rb
+$ GITHUB_TOKEN=your_token REPOSITORY=owner/repo bin/analytics.sh
 ```
+
  An example output would be
 ```shell
 I, [2025-04-14T14:56:18.215478 #50810]  INFO -- : Successfully connected to GitHub API and found repository: joinrepublic/seedrs
