@@ -85,11 +85,11 @@ $ GITHUB_TOKEN=your_token REPOSITORY=owner/repo bin/analytics.sh
 
  An example output would be
 ```shell
-I, [2025-04-14T14:56:18.215478 #50810]  INFO -- : Successfully connected to GitHub API and found repository: joinrepublic/seedrs
+I, [2025-04-14T14:56:18.215478 #50810]  INFO -- : Successfully connected to GitHub API and found repository: owner/repo
 I, [2025-04-14T14:56:18.215775 #50810]  INFO -- : Analyzing PRs closed since 2025-03-15
 I, [2025-04-14T14:57:22.745211 #50810]  INFO -- : Found 110 PRs to analyze
 
------ GitHub PR Review Analytics for joinrepublic/seedrs -----
+----- GitHub PR Review Analytics for owner/repo -----
 Analyzed 110 PRs closed in the last 30 days
 
 Time to First Review:
