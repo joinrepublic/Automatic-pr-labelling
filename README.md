@@ -7,8 +7,9 @@ Both tools work together to help teams optimize their code review process by pro
 ## Overview
 The Automatic PR Labelling analyzes various metrics of a Pull Request (size, complexity, files changed, etc.) to estimate how long a review will take. It then automatically applies one of the following labels:
 - review-time: <5mins - Quick reviews
-- review-time: ~30mins - Standard reviews
-- review-time: >30mins - In-depth reviews requiring significant time
+- review-time: <15mins - Standard reviews
+- review-time: >15mins - In-depth reviews requiring significant time
+
 The Automatic PR Labelling helps measure the impact of this labeling system by calculating the actual time spent on reviews before and after implementation.
 
 ## Installation
