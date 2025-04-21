@@ -35,10 +35,21 @@ The Automatic PR Labelling helps measure the impact of this labeling system by c
     cp .env.example .env
     # Edit .env file with your GitHub credentials
 ```
+4. Please make sure that you have the following environment variable defined:
+  - `GITHUB_TOKEN`: a valid GitHub token that allows you access to the repo you want to run these analytics for;
+  - `REPOSITORY`: the `owner/repo` on which you want to run these analytics;
+  - `DATE_RANGE`: will default to `30d`, so need not to have it defined, but...
 
 ## Usage
 ### PR Review Estimator
+The main use case of this estimator is to be run as part of a GitHub action whenever a pull request is done. Therefore we start by [ syill a work in progress ] an action from another repo invoquing this script.
+
+But if you want to run it locally, with or without docker, please keep on reading the following subsections.
+
 #### Running from another GitHub action
+
+This is the most expected use case for this script: to run it as part of the PR action, from another repo.
+
 ```yaml
 jobs:
   estimate_review_time:
@@ -51,11 +62,17 @@ jobs:
           repository: ${{ github.repository }}
           pr_number: ${{ github.event.pull_request.number }}
 ```
+
 #### Running locally without Docker
+To run the estimator script without using docker you shoud execute the following:
+
 ```shell
 $ GITHUB_TOKEN=your_token REPOSITORY=owner/repo PR_NUMBER=xyz bin/estimator
 ```
- An example output would be
+
+#### Example output
+An example output is be
+
 ```shell
 GITHUB_TOKEN=$GITHUB_TOKEN REPOSITORY=$REPOSITORY PR_NUMBER=16810 bin/estimator.sh
 Bundle complete! 11 Gemfile dependencies, 45 gems now installed.
@@ -69,7 +86,13 @@ I, [2025-04-21T10:15:35.662152 #77307]  INFO -- : Applied label: review-time: 3 
 ```
 
 ### PR Review Analytics
+The analytics script is a helper tool for those that want to gather data on if indeed labelling PRs according to an estimate of the time the PR will take to be reviewed helps in shortenning that time.
+
+We support both running with Docker and without it.
+
 #### Running locally with Docker
+To run the analytics script with docker (after having built it -- see above) you shoud execute the follwoing:
+
 ```shell
 docker run --rm \
   -e GITHUB_TOKEN=your_token \
@@ -79,11 +102,15 @@ docker run --rm \
 ```
 
 #### Running locally without Docker
+To run the analytics script without using docker  you shoud execute the following:
+
 ```shell
 $ GITHUB_TOKEN=your_token REPOSITORY=owner/repo bin/analytics.sh
 ```
 
- An example output would be
+#### Example output
+An example output is be
+
 ```shell
 I, [2025-04-14T14:56:18.215478 #50810]  INFO -- : Successfully connected to GitHub API and found repository: owner/repo
 I, [2025-04-14T14:56:18.215775 #50810]  INFO -- : Analyzing PRs closed since 2025-03-15
