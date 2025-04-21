@@ -5,13 +5,17 @@ require 'yaml'
 require 'logger'
 
 # Set up logging
-LOGGER = Logger.new(STDOUT)
-LOGGER.level = ENV['DEBUG'] ? Logger::DEBUG : Logger::INFO
+# logger.rb (or just inline this method)
+def default_logger
+  logger = Logger.new(STDOUT)
+  logger.level = ENV['DEBUG'] ? Logger::DEBUG : Logger::INFO
+  logger
+end
 
 # Configuration
 class Config
   # Load from .pr-review-config.yml if exists, otherwise use defaults
-  def self.load(path = './.pr-review-config.yml')
+  def self.load(logger, path = './.pr-review-config.yml')
     if File.exist?(path) && !File.directory?(path) && File.size(path) < 1_000_000
       config = YAML.safe_load_file(path, permitted_classes: [Hash, String, Array, Integer, Float, Symbol])
       config.is_a?(Hash) ? config : default_config
@@ -19,7 +23,7 @@ class Config
       default_config
     end
   rescue Psych::SyntaxError, Errno::ENOENT, Errno::EACCES => e
-    LOGGER.warn("Failed to load config at #{path}: #{e.message}")
+    logger.warn("Failed to load config at #{path}: #{e.message}")
     default_config
   end
 
@@ -136,14 +140,14 @@ module PRLogging
   private
 
   def log_changes(estimate)
-    LOGGER.info "Files changed: #{estimate[:files_count]}"
-    LOGGER.info "Lines added: #{estimate[:additions]}"
-    LOGGER.info "Lines deleted: #{estimate[:deletions]}"
+    logger.info "Files changed: #{estimate[:files_count]}"
+    logger.info "Lines added: #{estimate[:additions]}"
+    logger.info "Lines deleted: #{estimate[:deletions]}"
   end
 
   def log_time_estimate(estimate)
-    LOGGER.info "Estimated review time: #{format_time(estimate[:time])}"
-    LOGGER.info "Applied label: #{estimate[:label]}"
+    logger.info "Estimated review time: #{format_time(estimate[:time])}"
+    logger.info "Applied label: #{estimate[:label]}"
   end
 
   def format_time(seconds)
@@ -168,17 +172,18 @@ class PRReviewTimeEstimator
   include PRTimeCalculator
   include PRLogging
 
-  attr_reader :client, :repository, :pr_number, :config
+  attr_reader :client, :repository, :pr_number, :config, :logger
 
   class EstimatorError < StandardError; end
 
-  def initialize(github_token, repository_name, pull_request_number)
+  def initialize(github_token, repository_name, pull_request_number, logger: default_logger)
     validate_inputs(github_token, repository_name, pull_request_number)
     setup_client(github_token)
     @repository = repository_name
     @pr_number = pull_request_number.to_i
-    @config = Config.load
-    LOGGER.info "Initializing PR Review Time Estimator for #{repository_name}##{pull_request_number}"
+    @logger = logger
+    @config = Config.load( logger)
+    logger.info "Initializing PR Review Time Estimator for #{repository_name}##{pull_request_number}"
   end
 
   def run
@@ -187,7 +192,7 @@ class PRReviewTimeEstimator
     apply_results(estimate)
     create_response(estimate)
   rescue Octokit::Error => e
-    LOGGER.error "GitHub API error: #{e.message}"
+    logger.error "GitHub API error: #{e.message}"
     raise EstimatorError, "Failed to process PR: #{e.message}"
   end
 
@@ -227,12 +232,7 @@ class PRReviewTimeEstimator
   end
 
   def determine_label(time)
-    thresholds = config['time_thresholds']
-    case time
-    when 0..thresholds['quick'] then 'review-time: <5mins'
-    when 0..thresholds['standard'] then 'review-time: ~30mins'
-    else 'review-time: >30mins'
-    end
+    "review-time: #{format_time(time)}"
   end
 
   def apply_results(estimate)
@@ -245,15 +245,36 @@ class PRReviewTimeEstimator
     color = label_color(label)
     client.add_label(repository, label, color)
   rescue Octokit::UnprocessableEntity => e
-    LOGGER.debug "Label already exists: #{e.message}"
+    logger.debug "Label already exists: #{e.message}"
   end
 
   def label_color(label)
-    case label
-    when 'review-time: <5mins' then '2ecc71'
-    when 'review-time: ~30mins' then 'f1c40f'
-    when 'review-time: >30mins' then 'e74c3c'
-    else 'bdc3c7'
+    minutes = extract_minutes_from_label(label)
+
+    quick_limit = (config['time_thresholds']['quick'] / 60.0).ceil
+    standard_limit = (config['time_thresholds']['standard'] / 60.0).ceil
+
+    case minutes
+    when 0...quick_limit
+      '2ecc71'  # Green
+    when quick_limit...standard_limit
+      'f1c40f'  # Yellow
+    else
+      'e74c3c'  # Red
+    end
+  end
+
+  def extract_minutes_from_label(label)
+    if label =~ /(\d+)\s*minutes?/
+      $1.to_i
+    elsif label =~ /(\d+)h\s*(\d+)m/
+      $1.to_i * 60 + $2.to_i
+    elsif label =~ /(\d+)h/
+      $1.to_i * 60
+    elsif label =~ /(\d+)\s*seconds?/
+      ($1.to_i / 60.0).ceil
+    else
+      15 # fallback default
     end
   end
 
@@ -268,6 +289,8 @@ end
 
 # Main execution
 begin
+  logger = default_logger
+
   # Get required environment variables
   token = ENV['GITHUB_TOKEN']
   repository = ENV['REPOSITORY']
@@ -288,8 +311,8 @@ begin
 
   # Validate inputs
   unless token && repository && pr_number
-    LOGGER.error 'Missing required environment variables.'
-    LOGGER.error 'Required: GITHUB_TOKEN, REPOSITORY, PR_NUMBER'
+    logger.error 'Missing required environment variables.'
+    logger.error 'Required: GITHUB_TOKEN, REPOSITORY, PR_NUMBER'
     exit 1
   end
 
@@ -297,7 +320,8 @@ begin
   estimator = PRReviewTimeEstimator.new(token, repository, pr_number)
   estimator.run
 rescue StandardError => e
-  LOGGER.error "Error: #{e.message}"
-  LOGGER.error e.backtrace.join("\n") if ENV['DEBUG']
+  logger.error "Error: #{e.message}"
+  logger.error e.backtrace.join("\n") if ENV['DEBUG']
   exit 1
 end
+

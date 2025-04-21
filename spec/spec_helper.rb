@@ -6,4 +6,7 @@ RSpec.configure do |config|
   config.order = :defined
   config.color = true
   config.formatter = :documentation
+  config.expect_with :rspec do |c|
+    c.syntax = :expect
+  end
 end
