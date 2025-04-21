@@ -1,0 +1,16 @@
+# Custom thresholds for review time labels
+time_thresholds:
+  quick: 300  # 5 minutes in seconds
+  standard: 1800  # 30 minutes in seconds
+
+weights:
+  lines_changed: 0.8
+  files_modified: 0.4
+  complexity: 0.6
+
+# File type categories
+file_categories:
+  code: ['.rb', '.ts', '.js']
+  documentation: ['.md', '.txt']
+  tests: ['_spec.rb']
+

@@ -1,0 +1,39 @@
+name: PR Review Analytics
+
+on:
+  workflow_dispatch:
+    inputs:
+      date_range:
+        description: "Date Range (e.g. 30d, 2024-12-01)"
+        required: false
+        default: "30d"
+      compare_periods:
+        description: "Compare two time periods?"
+        required: false
+        default: "false"
+      before_date:
+        description: "Start of previous period"
+        required: false
+      after_date:
+        description: "Start of current period"
+        required: false
+
+jobs:
+  analytics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.2
+      - name: Install deps
+        run: bundle install
+      - name: Run PR Review Analytics
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.repository }}
+          DATE_RANGE: ${{ github.event.inputs.date_range }}
+          COMPARE_PERIODS: ${{ github.event.inputs.compare_periods }}
+          BEFORE_DATE: ${{ github.event.inputs.before_date }}
+          AFTER_DATE: ${{ github.event.inputs.after_date }}
+        run: ruby pr_review_analytics.rb

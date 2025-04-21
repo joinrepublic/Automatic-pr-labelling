@@ -1,0 +1,16 @@
+name: 'Estimate PR Review Time'
+description: 'Estimates PR review time and applies labels based on changes'
+author: 'José Bonnet, Republic Europe'
+inputs:
+  github_token:
+    description: 'GitHub token'
+    required: true
+  repository:
+    description: 'Full repository name (e.g., user/repo)'
+    required: true
+  pr_number:
+    description: 'Pull request number'
+    required: false
+runs:
+  using: 'docker'
+  image: 'Dockerfile'

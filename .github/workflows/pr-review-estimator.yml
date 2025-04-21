@@ -1,0 +1,17 @@
+name: Estimate PR Review Time
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  estimate_review_time:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Estimate PR review time
+        uses: ./.github/actions/pr-review-estimator
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
