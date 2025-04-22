@@ -11,6 +11,31 @@ inputs:
   pr_number:
     description: 'Pull request number'
     required: false
+  config_path:
+    required: false
+    default: '.pr-review-config.yml'
+  script_name:
+    required: true  # to pick which script to run
+    description: "Which script to run (must be in /bin/)"
+    default: "estimator.sh"
+    options:
+      - analytics.sh
+      - estimator.sh
+
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "composite"
+  steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+
+    - name: Run script
+      run: |
+        GITHUB_TOKEN=${{ inputs.github_token }} \
+        REPOSITORY=${{ inputs.repository }} \
+        PR_NUMBER=${{ inputs.pr_number }} \
+        CONFIG_PATH=${{ inputs.config_path }} \
+        bin/${{ inputs.script_name }}
