@@ -1,7 +1,7 @@
 # Custom thresholds for review time labels
 time_thresholds:
   quick: 300  # 5 minutes in seconds
-  standard: 1800  # 30 minutes in seconds
+  standard: 900  # 15 minutes in seconds
 
 weights:
   lines_changed: 0.8

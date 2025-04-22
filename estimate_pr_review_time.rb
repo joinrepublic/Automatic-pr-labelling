@@ -16,7 +16,7 @@ end
 # Configuration
 class Config
   # Load from .pr-review-config.yml if exists, otherwise use defaults
-  def self.load(logger, path = './.pr-review-config.yml')
+  def self.load(logger, path)
     if File.exist?(path) && !File.directory?(path) && File.size(path) < 1_000_000
       config = YAML.safe_load_file(path, permitted_classes: [Hash, String, Array, Integer, Float, Symbol])
       config.is_a?(Hash) ? config : default_config
@@ -30,8 +30,8 @@ class Config
 
   def self.default_time_thresholds
     {
-      'quick' => 300,     # 5 minutes in seconds
-      'standard' => 1800  # 30 minutes in seconds
+      'quick' => 300,    # 5 minutes in seconds
+      'standard' => 900  # 15 minutes in seconds
     }
   end
 
@@ -183,7 +183,7 @@ class PRReviewTimeEstimator
     @repository = repository_name
     @pr_number = pull_request_number.to_i
     @logger = logger
-    @config = Config.load( logger)
+    @config = Config.load( logger, ENV['CONFIG_PATH'] || './.pr-review-config.yml')
     logger.info "Initializing PR Review Time Estimator for #{repository_name}##{pull_request_number}"
   end
 
