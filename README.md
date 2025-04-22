@@ -40,7 +40,8 @@ The Automatic PR Labelling helps measure the impact of this labeling system by c
 4. Please make sure that you have the following environment variable defined:
   - `GITHUB_TOKEN`: a valid GitHub token that allows you access to the repo you want to run these analytics for;
   - `REPOSITORY`: the `owner/repo` on which you want to run these analytics;
-  - `DATE_RANGE`: will default to `30d`, so need not to have it defined, but...
+  - `DATE_RANGE`: defaults to `30d`, so need not to have it defined, but...
+  - `CONFIG_PATH`: defaults to `./.pr-review-config.yml`, so need not to have it defined, but...
 
 ## Usage
 ### PR Review Estimator
@@ -68,6 +69,8 @@ jobs:
           pr_number: ${{ github.event.pull_request.number }}
           config_path: .pr-review-config.yml
 ```
+
+There is a fifth parameter, `script_name`, that defaults to `estimator.sh`, so for this script there is no need to add it.
 
 #### Running locally without Docker
 To run the estimator script without using docker you shoud execute the following:
@@ -113,6 +116,29 @@ To run the analytics script without using docker  you shoud execute the followin
 ```shell
 $ bin/analytics.sh
 ```
+
+#### Running from another GitHub action
+
+This script can also as part of the PR action, from another repo.
+
+```yaml
+jobs:
+  run-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo B
+        uses: actions/checkout@v4
+      - name: Run PR review estimator from Repo A
+        uses: joirepublic/Automatic-pr-labelling@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          repository: your-org/repo-b
+          pr_number: ${{ github.event.pull_request.number }}
+          config_path: .pr-review-config.yml
+          script_name: analytics.sh
+```
+
+Note the fifth parameter, which in this case is needed.
 
 #### Example output
 An example output is be
