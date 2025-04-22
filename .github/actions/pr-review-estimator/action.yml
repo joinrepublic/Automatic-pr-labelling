@@ -8,6 +8,10 @@ inputs:
   repository:
     description: 'Full repository name (e.g., user/repo)'
     required: true
+  date_range:
+    description: 'Date range to analyse'
+    required: false
+    default: '30d'
   pr_number:
     description: 'Pull request number'
     required: false
@@ -37,5 +41,6 @@ runs:
         GITHUB_TOKEN=${{ inputs.github_token }} \
         REPOSITORY=${{ inputs.repository }} \
         PR_NUMBER=${{ inputs.pr_number }} \
+        DATE_RANGE=${{ inputs.date_range }} \
         CONFIG_PATH=${{ inputs.config_path }} \
         bin/${{ inputs.script_name }}

@@ -40,6 +40,7 @@ The Automatic PR Labelling helps measure the impact of this labeling system by c
 4. Please make sure that you have the following environment variable defined:
   - `GITHUB_TOKEN`: a valid GitHub token that allows you access to the repo you want to run these analytics for;
   - `REPOSITORY`: the `owner/repo` on which you want to run these analytics;
+  - `PR_NUMBER`: the number of the PR we want to estimate the review time;
   - `DATE_RANGE`: defaults to `30d`, so need not to have it defined, but...
   - `CONFIG_PATH`: defaults to `./.pr-review-config.yml`, so need not to have it defined, but...
 
@@ -133,7 +134,7 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           repository: your-org/repo-b
-          pr_number: ${{ github.event.pull_request.number }}
+          date_range: ${{ github.event.pull_request.number }}
           config_path: .pr-review-config.yml
           script_name: analytics.sh
 ```
