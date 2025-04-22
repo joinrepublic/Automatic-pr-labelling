@@ -4,6 +4,8 @@ This repository contains two dockerized Ruby applications for managing and analy
 2. PR Review Analytics - Calculates average review times for closed PRs to measure process improvements
 Both tools work together to help teams optimize their code review process by providing realistic time expectations and measuring progress.
 
+Further documentation is available [here](https://www.notion.so/republic/Pull-Request-Review-Time-Estimation-Algorithm-1dd86567bd75801d9763e3779a088ab7).
+
 ## Overview
 The Automatic PR Labelling analyzes various metrics of a Pull Request (size, complexity, files changed, etc.) to estimate how long a review will take. It then automatically applies one of the following labels:
 - review-time: <5mins - Quick reviews
@@ -52,15 +54,19 @@ This is the most expected use case for this script: to run it as part of the PR 
 
 ```yaml
 jobs:
-  estimate_review_time:
+  run-script:
     runs-on: ubuntu-latest
     steps:
-      - name: Estimate PR review time
-        uses: your-org/pr-review-time-estimator@main
+      - name: Checkout Repo B
+        uses: actions/checkout@v4
+
+      - name: Run PR review estimator from Repo A
+        uses: joirepublic/Automatic-pr-labelling@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
+          repository: your-org/repo-b
           pr_number: ${{ github.event.pull_request.number }}
+          config_path: .pr-review-config.yml
 ```
 
 #### Running locally without Docker
